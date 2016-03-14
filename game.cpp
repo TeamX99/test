@@ -56,31 +56,81 @@ void move(int *board, int *PawnToMove)
 {
 	board[ConverTo100[MoveFiled[PawnToMove[1]]]] = board[ConverTo100[MoveFiled[PawnToMove[0]]]];
 	board[ConverTo100[MoveFiled[PawnToMove[0]]]] = EMPTY;
+	PawnToMove[1] = -1;
+}
+
+
+void CheckBeating(S_GAME **game, int *PawnToMove)
+{
+	int index, i, j;
+	
+	for (index = 1; index < 13; ++index) {
+		if ((*game)->player[(*game)->turn].pieces[index].postition == ConverTo100[MoveFiled[PawnToMove[0]]]) {
+			i = index;
+			break;
+		}
+	}
+
+	if (PawnToMove[1] != -1) {	//First check beating
+		for (index = 0; index < 4; ++index) {
+			if ((*game)->turn == WHITE) {
+				if ((*game)->board[(*game)->player[(*game)->turn].pieces[i].Neighbor[index]] == bPAWN) {
+					for (j = 0; j < 4; ++j) {
+						if ((*game)->player[(*game)->turn].pieces[i].Neighbor[index] + Direction[j] == ConverTo100[MoveFiled[PawnToMove[1]]]) {
+							(*game)->board[(*game)->player[(*game)->turn].pieces[i].Neighbor[index]] = EMPTY;
+							move((*game)->board, PawnToMove);
+							PawnToMove[1] = -1;
+							UpdateInfoPeaces(&(*game)->player[WHITE], (*game)->board, WHITE);
+							UpdateInfoPeaces(&(*game)->player[BLACK], (*game)->board, BLACK);
+							AllNeighbor(&(*game)->player[WHITE]);
+							AllNeighbor(&(*game)->player[BLACK]);
+							return;
+						}
+					}
+				}
+			}
+			else if ((*game)->turn == BLACK) {
+				if ((*game)->player[(*game)->turn].pieces[i].Neighbor[index] == wPAWN) {
+					for (j = 0; j < 4; ++j) {
+						if ((*game)->player[(*game)->turn].pieces[i].Neighbor[index] + Direction[j] == ConverTo100[MoveFiled[PawnToMove[1]]]) {
+							(*game)->board[(*game)->player[(*game)->turn].pieces[i].Neighbor[index]] = EMPTY;
+							move((*game)->board, PawnToMove);
+							PawnToMove[1] = -1;
+							UpdateInfoPeaces(&(*game)->player[WHITE], (*game)->board, WHITE);
+							UpdateInfoPeaces(&(*game)->player[BLACK], (*game)->board, BLACK);
+							AllNeighbor(&(*game)->player[WHITE]);
+							AllNeighbor(&(*game)->player[BLACK]);
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	else {
+		return;
+	}
 }
 
 
 void try_move(S_GAME *game, int *PawnToMove)
 {
-	int Neighbor[4];	//UP_LEFT, UP_RIGHT, D_RIGHT, D_LEFT
-	int PossibleBeating[4] = { -1, -1, -1, -1 };
 	int index, i;
 	
 	while (1) {
 		if (game->board[ConverTo100[MoveFiled[PawnToMove[1]]]] != EMPTY) {
-			printf("Invalid!\n");
+			printf("Invalid_1!\n");
 			return;
 		}
 
 		if (((game->turn == WHITE) && (game->board[ConverTo100[MoveFiled[PawnToMove[0]]]] != wPAWN)) || ((game->turn == BLACK) && (game->board[ConverTo100[MoveFiled[PawnToMove[0]]]] != bPAWN))) {
-			printf("Invalid!\n");
+			printf("Invalid_2!\n");
 			return;
 		}
 
-		//beating if it is
+		CheckBeating(&game, PawnToMove);
 
 		i = ConverTo100[MoveFiled[PawnToMove[0]]] - ConverTo100[MoveFiled[PawnToMove[1]]];
-
-
 		if ((((i == Direction[0]) || (i == Direction[1])) && (game->turn == BLACK)) || (((i == Direction[2]) || (i == Direction[3])) && (game->turn == WHITE))) {
 			move(game->board, PawnToMove);
 			if (game->turn == WHITE) {
@@ -93,6 +143,10 @@ void try_move(S_GAME *game, int *PawnToMove)
 				AllNeighbor(&game->player[game->turn]);
 				game->turn = WHITE;
 			}
+			return;
+		}
+		else {
+			printf("Invalid!\n");
 			return;
 		}
 
@@ -120,6 +174,15 @@ int GameEngine(void)
 
 	while (game.GameEnd == 0) {
 
+		GetHumanMove(PawnToMove);
+		try_move(&game, PawnToMove);
+		PrintBoard(game.board);
+		GetHumanMove(PawnToMove);
+		try_move(&game, PawnToMove);
+		PrintBoard(game.board);
+		GetHumanMove(PawnToMove);
+		try_move(&game, PawnToMove);
+		PrintBoard(game.board);
 		GetHumanMove(PawnToMove);
 		try_move(&game, PawnToMove);
 		PrintBoard(game.board);
