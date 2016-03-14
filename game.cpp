@@ -39,7 +39,6 @@ void GetHumanMove(int *aTab)
 void try_move(S_GAME *game, int *PawnToMove)
 {
 	int Neighbor[4];
-	int CountIfBeating = 0;
 	int index;
 	
 	if (PawnToMove[1] != EMPTY) {
