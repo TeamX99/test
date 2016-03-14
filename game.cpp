@@ -28,33 +28,55 @@ void GetHumanMove(int *aTab)
 {
 	printf("Select pawn: ");
 	scanf("%d", &aTab[0]);
+	getchar();
 
 	printf("Select destiny: ");
 	scanf("%d", &aTab[1]);
+	getchar();
 
 	--aTab[0];
 	--aTab[1];
 }
 
+void move(int *board, int *PawnToMove)
+{
+	board[ConverTo100[MoveFiled[PawnToMove[1]]]] = board[ConverTo100[MoveFiled[PawnToMove[0]]]];
+	board[ConverTo100[MoveFiled[PawnToMove[0]]]] = EMPTY;
+}
+
 void try_move(S_GAME *game, int *PawnToMove)
 {
-	int Neighbor[4];
-	int index;
+	int Neighbor[4];	//UP_LEFT, UP_RIGHT, D_RIGHT, D_LEFT
+	int PossibleBeating[4] = { -1, -1, -1, -1 };
+	int index, i;
 	
-	if (PawnToMove[1] != EMPTY) {
-		printf("Invalid!\n");
-		return;
-	}
+	while (1) {
+		if (game->board[ConverTo100[MoveFiled[PawnToMove[1]]]] != EMPTY) {
+			printf("Invalid!\n");
+			return;
+		}
 
-	if (((game->turn == WHITE) && (PawnToMove[0] != wPAWN)) || ((game->turn == BLACK) && (PawnToMove[0] != bPAWN))) {
-		printf("Invalid!\n");
-		return;
-	}
+		if (((game->turn == WHITE) && (game->board[ConverTo100[MoveFiled[PawnToMove[0]]]] != wPAWN)) || ((game->turn == BLACK) && (game->board[ConverTo100[MoveFiled[PawnToMove[0]]]] != bPAWN))) {
+			printf("Invalid!\n");
+			return;
+		}
 
-	index = 0;
-	while (index < 4) {
-		Neighbor[index] = ConverTo100[MoveFiled[PawnToMove[0] + Direction[index]]];
-		index++;
+		i = ConverTo100[MoveFiled[PawnToMove[0]]] - ConverTo100[MoveFiled[PawnToMove[1]]];
+		index = 0;
+		while (index < 4) {
+			if ((i == Direction[index])) {
+				move(game->board, PawnToMove);
+				if (game->turn == WHITE) {
+					game->turn = BLACK;
+				}
+				else {
+					game->turn = WHITE;
+				}
+				return;
+			}
+			++index;
+		}
+
 	}
 
 }
