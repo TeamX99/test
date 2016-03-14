@@ -79,23 +79,21 @@ void try_move(S_GAME *game, int *PawnToMove)
 		//beating if it is
 
 		i = ConverTo100[MoveFiled[PawnToMove[0]]] - ConverTo100[MoveFiled[PawnToMove[1]]];
-		index = 0;
-		while (index < 4) {
-			if ((i == Direction[index])) {
-				move(game->board, PawnToMove);
-				if (game->turn == WHITE) {
-					UpdateInfoPeaces(&game->player[WHITE], game->board, game->turn);
-					AllNeighbor(&game->player[game->turn]);
-					game->turn = BLACK;
-				}
-				else {
-					UpdateInfoPeaces(&game->player[BLACK], game->board, game->turn);
-					AllNeighbor(&game->player[game->turn]);
-					game->turn = WHITE;
-				}
-				return;
+
+
+		if ((((i == Direction[0]) || (i == Direction[1])) && (game->turn == BLACK)) || (((i == Direction[2]) || (i == Direction[3])) && (game->turn == WHITE))) {
+			move(game->board, PawnToMove);
+			if (game->turn == WHITE) {
+				UpdateInfoPeaces(&game->player[WHITE], game->board, game->turn);
+				AllNeighbor(&game->player[game->turn]);
+				game->turn = BLACK;
 			}
-			++index;
+			else {
+				UpdateInfoPeaces(&game->player[BLACK], game->board, game->turn);
+				AllNeighbor(&game->player[game->turn]);
+				game->turn = WHITE;
+			}
+			return;
 		}
 
 	}
